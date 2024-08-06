@@ -1,3 +1,5 @@
+#!/bin/bash
+
 workers=("kubeworker01" "kubeworker02")
 
 for worker in "${workers[@]}"; do
