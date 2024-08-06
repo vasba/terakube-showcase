@@ -17,94 +17,38 @@ In Hiper-V Manager -> Virtual Switch Manager -> Create "INTERNAL" virtual switch
 Note that we use the multipass network and different made up mac adresses.
 
 ```
-multipass launch --disk 10G --memory 3G --cpus 2 --name kubemaster --network name=multipass,mode=manual,mac="52:54:00:4b:ab:cd" jammy
-multipass launch --disk 10G --memory 3G --cpus 2 --name kubeworker01 --network name=multipass,mode=manual,mac="52:54:00:4b:ba:dc" jammy
-multipass launch --disk 10G --memory 3G --cpus 2 --name kubeworker02 --network name=multipass,mode=manual,mac="52:54:00:4b:cd:ab" jammy
+
+# In case netplan apply takes too long time in the script below 
+# run the commands individually by copy and paste in the console
+
+export ip_subnet="169.254.27" # your multipass brige subnet here!!!!!!!
+
+# Also add it to setup_workers.sh
+
+multipass/set_up_instances.sh
+cd multipass
+
+#Modify to arm binaries in install_container_runtime.sh before running the script below
+./install_configure_vms.sh
+
+# copy the join from the last print out from the before command
+# looks like --- kubeadm join kubemaster and paste it into setup_worker.sh
+
+./setup_workers.sh
+
+
 ```
 
-### Set up static ips
 
-#### Get subnet for multipass internal network
+## Tips
 
-Use a command like ipconfig, in my case I see  IPv4 Address 169.254.10.146 for the multipass network so we choose ips that belong to same subnet: 169.254.10.101, 169.254.10.102, 169.254.10.103 for our VMs.
+### move ssh key to multipass instance
 
-
-#### Apply the static IPs
-
-After setting the static ips search in scripts for the example ips and replace with your ips.
 
 ```
-multipass exec -n kubemaster -- sudo bash -c 'cat << EOF > /etc/netplan/10-custom.yaml
-network:
-  version: 2
-  ethernets:
-    extra0:
-      dhcp4: no
-      match:
-        macaddress: "52:54:00:4b:ab:cd"
-      addresses: [169.254.10.101/24]
-EOF'
+# move public key to instance (assuming you are in the home directory) and public key is named id_rsa
 
-multipass exec -n kubemaster -- sudo netplan apply
-
-# Check that static ip is set now
-multipass info kubemaster | grep IPv4 -A1
-
-multipass exec -n kubeworker01 -- sudo bash -c 'cat << EOF > /etc/netplan/10-custom.yaml
-network:
-  version: 2
-  ethernets:
-    extra0:
-      dhcp4: no
-      match:
-        macaddress: "52:54:00:4b:ba:dc"
-      addresses: [169.254.10.102/24]
-EOF'
-
-multipass exec -n kubeworker01 -- sudo netplan apply
-# Check that static ip is set now
-multipass info kubeworker01 | grep IPv4 -A1
-
-multipass exec -n kubeworker02 -- sudo bash -c 'cat << EOF > /etc/netplan/10-custom.yaml
-network:
-  version: 2
-  ethernets:
-    extra0:
-      dhcp4: no
-      match:
-        macaddress: "52:54:00:4b:cd:ab"
-      addresses: [169.254.10.103/24]
-EOF'
-
-multipass exec -n kubeworker02 -- sudo netplan apply
-# Check that static ip is set now
-multipass info kubeworker02 | grep IPv4 -A1
-```
-
-### Configure the local DNS
-
-Add to /etc/hosts
-```
-169.254.10.101 kubemaster
-169.254.10.102 kubeworker01
-169.254.10.103 kubeworker02
-```
-
-Here is how to edit /etc/hosts in each VM
-
-```
-multipass shell kubemaster
-
-sudo vi /etc/hosts
-# Add the rows above
-
-
-multipass shell kubeworker01
-sudo vi /etc/hosts
-# Add the rows above
-
-multipass shell kubeworker02
-sudo vi /etc/hosts
-# Add the rows above
+multipass transfer .ssh/id_rsa.pub "$instance:.ssh/id_rsa.pub"
+multipass exec $instance -- bash -c 'cat ~/.ssh/id_rsa.pub | cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys'
 
 ```

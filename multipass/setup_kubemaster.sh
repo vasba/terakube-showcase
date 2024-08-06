@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # set apiserver-advertise-address to the IP address of the kubemaster VM
-sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=169.254.10.101
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --control-plane-endpoint=kubemaster
 
 # Configure kubectl to work with non-root user
 mkdir -p $HOME/.kube

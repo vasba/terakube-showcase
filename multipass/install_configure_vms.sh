@@ -10,16 +10,19 @@ instances=("kubemaster" "${workers[@]}")
 for instance in "${instances[@]}"; do
   echo "Configuring $instance..."
   multipass transfer install_configure_vm.sh "$instance:/home/ubuntu/install_configure_vm.sh"
-  multipass exec "$instance" -- bash /home/ubuntu/install_configure_vm.sh
+  multipass transfer forward_ipv4.sh "$instance:/home/ubuntu/forward_ipv4.sh"
+  multipass transfer install_container_runtime.sh "$instance:/home/ubuntu/install_container_runtime.sh"
+  multipass exec -n "$instance" -- sudo bash -c 'ls -la /home/ubuntu'
+  multipass exec -n "$instance" -- sudo bash './install_configure_vm.sh'
 done
 
-multipass transfer install_configure_vm.sh "kubemaster:/home/ubuntu/setup_kubemaster.sh"
-multipass exec "kubemaster" -- bash /home/ubuntu/setup_kubemaster.sh
+multipass transfer setup_kubemaster.sh "kubemaster:/home/ubuntu/setup_kubemaster.sh"
+multipass exec "kubemaster" -- sudo bash -c './setup_kubemaster.sh'
 
 for worker in "${workers[@]}"; do
     echo "Configuring $worker..."
-    multipass transfer install_configure_vm.sh "$worker:/home/ubuntu/setup_workers.sh"
-    multipass exec "$worker" -- bash /home/ubuntu/setup_workers.sh
+    multipass transfer setup_workers.sh "$worker:/home/ubuntu/setup_workers.sh"
+    multipass exec "$worker" -- sudo bash -c './setup_workers.sh'
 done
 
 
