@@ -25,10 +25,16 @@ export ip_subnet="169.254.27" # your multipass brige subnet here!!!!!!!
 
 # Also add it to setup_workers.sh
 
-multipass/set_up_instances.sh
 cd multipass
+./set_up_instances.sh
 
-#Modify to arm binaries in install_container_runtime.sh before running the script below
+# backup to not need redo previous step if
+# kubernetest installation fails
+./stop_and_backup.sh
+multipass start kubemaster kubeworker01 kubeworker02
+
+
+#Modify to correct platform binaries (arm, x86 etc) in install_container_runtime.sh before running the script below
 ./install_configure_vms.sh
 
 # copy the join from the last print out from the before command
@@ -52,3 +58,4 @@ multipass transfer .ssh/id_rsa.pub "$instance:.ssh/id_rsa.pub"
 multipass exec $instance -- bash -c 'cat ~/.ssh/id_rsa.pub | cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys'
 
 ```
+
