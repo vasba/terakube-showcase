@@ -36,7 +36,7 @@ fi
 
 # Download and install runc
 curl -LO https://github.com/opencontainers/runc/releases/download/v${RUNC_VERSION}/runc.${CPU}
-sudo install -m 755 runc.${PLATFORM} /usr/local/sbin/runc
+sudo install -m 755 runc.${CPU} /usr/local/sbin/runc
 
 # Download and install CNI plugins
 curl -LO https://github.com/containernetworking/plugins/releases/download/v${CNI_PLUGINS_VERSION}/cni-plugins-${PLATFORM}-v${CNI_PLUGINS_VERSION}.tgz
