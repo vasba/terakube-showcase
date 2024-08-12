@@ -24,7 +24,7 @@ if ! multipass info kubemaster | grep -q "'$ip_subnet'.101"; then
 fi
 
 # Comment out the update_etc_hosts line in /etc/cloud/cloud.cfg
-multipass exec -n kubemaster -- sudo bash -c "sudo sed -i 's/^\(update_etc_hosts\)/#\1/' /etc/cloud/cloud.cfg"
+multipass exec -n kubemaster -- sudo bash -c "sed -i 's/\(.*update_etc_hosts.*\)/#\1/' /etc/cloud/cloud.cfg"
 
 # Add entry to /etc/hosts
 multipass exec -n kubemaster -- sudo bash -c 'echo "'$ip_subnet'.101 kubemaster" >> /etc/hosts'
@@ -52,7 +52,7 @@ if ! multipass info kubeworker01 | grep -q "'$ip_subnet'.102"; then
 fi
 
 # Comment out the update_etc_hosts line in /etc/cloud/cloud.cfg
-multipass exec -n kubeworker01 -- sudo bash -c "sudo sed -i 's/^\(update_etc_hosts\)/#\1/' /etc/cloud/cloud.cfg"
+multipass exec -n kubeworker01 -- sudo bash -c "sed -i 's/\(.*update_etc_hosts.*\)/#\1/' /etc/cloud/cloud.cfg"
 
 
 # Add entry to /etc/hosts
@@ -80,7 +80,7 @@ if ! multipass info kubeworker02 | grep -q "'$ip_subnet'.103"; then
 fi
 
 # Comment out the update_etc_hosts line in /etc/cloud/cloud.cfg
-multipass exec -n kubeworker02 -- sudo bash -c "sudo sed -i 's/^\(update_etc_hosts\)/#\1/' /etc/cloud/cloud.cfg"
+multipass exec -n kubeworker02 -- sudo bash -c "sed -i 's/\(.*update_etc_hosts.*\)/#\1/' /etc/cloud/cloud.cfg"
 
 
 # Add entry to /etc/hosts
