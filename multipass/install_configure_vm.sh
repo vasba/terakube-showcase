@@ -1,4 +1,4 @@
 #!/bin/bash
 
-./forward_ipv4.sh
-./install_container_runtime.sh
+sudo ./forward_ipv4.sh
+sudo ./install_container_runtime.sh
